@@ -1,18 +1,58 @@
-<h1>
-    Web Socket Example
-</h1>
-<p>
-    open console to see connection.
-</p>
+<h1>Web Socket Example</h1>
+<p>open console to see connection.</p>
+<pre id="messages" style="overflow: scroll"></pre>
+<input
+  type="text"
+  id="messageBox"
+  placeholder="Your Message:"
+  style="display: block"
+/>
+<button id="send" title="SEND">Send Message</button>
 <script>
-    var ws = new WebSocket('ws://localhost:40510');
+(function(){
+    const messages = document.getElementById("messages");
+    const messageBox = document.getElementById("messageBox");
+    const button = document.getElementById("send");
 
-    ws.onopen = function () {
-        console.log('websocket is connected ...')
-        ws.send('connected')
+    function showMessage(message) {
+        messages.textContent += `\n\n${message}`;
+        messageBox.value = '';
+    }
+    let ws;
+    function init() {
+        if (ws) {
+            ws.onerror = null;
+            ws.onopen = null;
+            ws.onclose = null;
+            ws.close();
+        }
+        ws = new WebSocket("ws://localhost:40510");
+        ws.onopen = function(){
+            console.log("websocket is connected ...");
+            //ws.send("connected");
+        };
+        /*ws.onmessage = ({data}) => {
+            console.log(data);
+            showMessage(data);
+        };*/
+        ws.onmessage = function({data}){
+            console.log(data);
+            showMessage(data);
+        };
+        ws.onclose = function(){
+            ws = null;
+        }
     }
 
-    ws.onmessage = function (ev) {
-        console.log(ev);
-    }
+    button.onclick = function () {
+        if (!ws) {
+            showMessage("No Connection");
+            return;
+        }
+        ws.send(messageBox.value);
+        showMessage(messageBox.value);
+    };
+
+    init();
+})();
 </script>

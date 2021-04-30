@@ -1,11 +1,17 @@
 let WebSocketServer = require('ws').Server;
 let wss = new WebSocketServer({port: 40510})
+const WebSocket = require('ws');
 
 wss.on('connection', function (ws) {
   console.log('opened');
 
   ws.on('message', function (message) {
     console.log('received: %s', message)
+    wss.clients.forEach(function each(client){
+      if(client != ws && client.readyState == WebSocket.OPEN){
+        client.send(message);
+      }
+    })
   });
 
   ws.on('close', function () {
@@ -14,7 +20,7 @@ wss.on('connection', function (ws) {
 
   setInterval( () => {
       try {
-        ws.send(`${new Date()}`);
+        //ws.send(`${new Date()}`);
       } catch (e) {};
     },
     1000
