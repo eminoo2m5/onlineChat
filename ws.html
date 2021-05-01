@@ -9,13 +9,12 @@
 />
 <button id="send" title="SEND">Send Message</button>
 <script>
-(function(){
     const messages = document.getElementById("messages");
     const messageBox = document.getElementById("messageBox");
     const button = document.getElementById("send");
 
     function showMessage(message) {
-        messages.textContent += `\n\n${message}`;
+        messages.textContent += `\n${message}\n`;
         messageBox.value = '';
     }
     let ws;
@@ -31,10 +30,6 @@
             console.log("websocket is connected ...");
             //ws.send("connected");
         };
-        /*ws.onmessage = ({data}) => {
-            console.log(data);
-            showMessage(data);
-        };*/
         ws.onmessage = function({data}){
             console.log(data);
             showMessage(data);
@@ -54,5 +49,5 @@
     };
 
     init();
-})();
+
 </script>
