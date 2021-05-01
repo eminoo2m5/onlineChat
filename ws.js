@@ -7,11 +7,15 @@ wss.on('connection', function (ws) {
 
   ws.on('message', function (message) {
     console.log('received: %s', message)
-    wss.clients.forEach(function each(client){
-      if(client != ws && client.readyState == WebSocket.OPEN){
-        client.send(message);
-      }
-    })
+    if (message === 'exit') {
+      ws.close();
+    } else {
+      wss.clients.forEach(function each(client){
+        if(client != ws && client.readyState == WebSocket.OPEN){
+          client.send(message);
+        }
+      })
+    }
   });
 
   ws.on('close', function () {
