@@ -1,53 +1,135 @@
-<h1>Web Socket Example</h1>
-<p>open console to see connection.</p>
-<pre id="messages" style="overflow: scroll"></pre>
-<input
-  type="text"
-  id="messageBox"
-  placeholder="Your Message:"
-  style="display: block"
-/>
-<button id="send" title="SEND">Send Message</button>
+<h1>Online Chat</h1>
+<div id="message-field">
+
+  <div id="others-messageBox">
+    <div class = "message" id="message others-message">hi</div>
+  </div>
+  <div class="separator"></div>
+  <div id="my-messageBox">
+    <div class = "message" id="my-message">how are you</div>
+  </div> 
+  <div class="separator"></div>
+
+</div>
+<div class="typing-field">
+  <input type="text" id="typing-box" placeholder="Your Message..." />
+  <button class="send" onclick="sendMessage()">SEND</button>
+</div>
+
+<style>
+  #message-field {
+    height: 80%;
+    padding: 3px;
+    overflow: auto;
+  }
+
+  .typing-field {
+    margin-top: 4px;
+    padding: 4px;
+    height: 8%;
+  }
+
+  #typing-box {
+    width: 90%;
+    height: 100%;
+    resize: none;
+    padding: 3px;
+  }
+
+  .send {
+    border: 0;
+    width: 9%;
+    background: blue;
+    color: white;
+    padding: 8px;
+    font-size: 18px;
+    position: absolute;
+    margin: 8px;
+  }
+
+  #others-messageBox {
+    margin-top: 10px;
+  }
+
+  #my-messageBox {
+    margin-top: 10px;
+    text-align: right;
+    background: white;
+  }
+
+  .message {
+    max-width: 90%;
+    border-radius: 5%;
+    padding: 5px;
+    box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.2),
+      0 0 1rem rgba(0, 0, 0, 0.2);
+  }
+
+  #my-message {
+    float: right;
+    background: blue;
+    color: white;
+  }
+
+  #others-message {
+    float: left;
+    background: white;
+  }
+
+  .separator {
+    width: 100%;
+    height: 8px;
+    float: left;
+  }
+</style>
 <script>
-    const messages = document.getElementById("messages");
-    const messageBox = document.getElementById("messageBox");
-    const button = document.getElementById("send");
+  let ws;
+  window.onload = function () {
+    const message = document.getElementById("message-field");
+    const type = document.getElementById("typing-field");
 
-    function showMessage(message) {
-        messages.textContent += `\n${message}\n`;
-        messageBox.value = '';
+    if (ws) {
+      ws.onerror = null;
+      ws.onopen = null;
+      ws.onclose = null;
+      ws.close();
     }
-    let ws;
-    function init() {
-        if (ws) {
-            ws.onerror = null;
-            ws.onopen = null;
-            ws.onclose = null;
-            ws.close();
-        }
-        ws = new WebSocket("ws://localhost:40510");
-        ws.onopen = function(){
-            console.log("websocket is connected ...");
-            //ws.send("connected");
-        };
-        ws.onmessage = function({data}){
-            console.log(data);
-            showMessage(data);
-        };
-        ws.onclose = function(){
-            ws = null;
-        }
-    }
-
-    button.onclick = function () {
-        if (!ws) {
-            showMessage("No Connection");
-            return;
-        }
-        ws.send(messageBox.value);
-        showMessage(messageBox.value);
+    ws = new WebSocket("ws://localhost:40510");
+    ws.onopen = function () {
+      console.log("websocket is connected ...");
+      //ws.send("connected");
     };
+    ws.onmessage = function ({ data }) {
+      console.log(data);
+      var html =
+        '<div id="others-messageBox">' +
+        '<div class="message" id="message others-message"> ' +
+        data +
+        " </div>" +
+        '<div class="separator"></div>' +
+        "</div>";
+      document.getElementById("message-field").innerHTML += html;
+    };
+    ws.onclose = function () {
+      ws = null;
+    };
+  };
 
-    init();
-
+  function sendMessage() {
+    if (!ws) {
+      showMessage("No Connection");
+      return;
+    }
+    const message = document.getElementById("typing-box").value;
+    ws.send(message);
+    var html =
+      '<div id="my-messageBox">' +
+      '<div class="message" id="my-message"> ' +
+      message +
+      " </div>" +
+      '<div class="separator"></div>' +
+      "</div>";
+    document.getElementById("message-field").innerHTML += html;
+    document.getElementById("typing-box").value = "";
+  };
 </script>
