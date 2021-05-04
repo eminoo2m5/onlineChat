@@ -3,8 +3,7 @@ let wss = new WebSocketServer({port: 40510})
 const WebSocket = require('ws');
 
 wss.on('connection', function (ws) {
-  console.log('opened');
-
+  console.log('A client has connected.');
   ws.on('message', function (message) {
     console.log('received: %s', message)
     if (message === 'exit') {

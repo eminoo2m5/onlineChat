@@ -1,15 +1,18 @@
-<h1>Online Chat</h1>
+<h1>Online Open Chat</h1>
 <div id="message-field">
-
-  <div id="others-messageBox">
-    <div class = "message" id="message others-message">hi</div>
+    <!--
+  <div class="messageBox" id="others-messageBox">
+    <div class="message" id="others-message">hi</div>
   </div>
   <div class="separator"></div>
-  <div id="my-messageBox">
-    <div class = "message" id="my-message">how are you</div>
-  </div> 
+  <div class="messageBox" id="my-messageBox">
+    <div class="message" id="my-message">how are you</div>
+  </div>
   <div class="separator"></div>
-
+  <div class="messageBox" id="others-messageBox">
+    <div class="message" id="others-message">hi</div>
+  </div>
+    -->
 </div>
 <div class="typing-field">
   <input type="text" id="typing-box" placeholder="Your Message..." />
@@ -45,6 +48,11 @@
     font-size: 18px;
     position: absolute;
     margin: 8px;
+  }
+
+  .messageBox {
+    max-width: 100%;
+    margin-top: 10px;
   }
 
   #others-messageBox {
@@ -84,7 +92,14 @@
 </style>
 <script>
   let ws;
+  var nickname;
   window.onload = function () {
+  nickname = prompt("Choose your nickname!");
+    if (nickname == "") {
+      nickname = "Guest_" + Math.floor(Math.random() * 899999 + 100000);
+      //게스트 중북 나중에 수정
+    }
+    console.log("hi! " + nickname);
     const message = document.getElementById("message-field");
     const type = document.getElementById("typing-field");
 
@@ -97,14 +112,16 @@
     ws = new WebSocket("ws://localhost:40510");
     ws.onopen = function () {
       console.log("websocket is connected ...");
-      //ws.send("connected");
+      ws.send(nickname + " has joined the chat.");
     };
-    ws.onmessage = function ({ data }) {
-      console.log(data);
+    ws.onmessage = function (event) {
+      //console.log(data);
+      let message = event.data;
+      message = JSON.parse(message);
       var html =
         '<div id="others-messageBox">' +
-        '<div class="message" id="message others-message"> ' +
-        data +
+        '<div class="message" id="others-message">' +
+            '<b>' + message.name + ": <br>" + '</b>' + message.body +
         " </div>" +
         '<div class="separator"></div>' +
         "</div>";
@@ -120,16 +137,21 @@
       showMessage("No Connection");
       return;
     }
-    const message = document.getElementById("typing-box").value;
-    ws.send(message);
+    let message ={
+        name: nickname,
+        body: document.getElementById("typing-box").value,
+    }
+    //const message = document.getElementById("typing-box").value;
     var html =
       '<div id="my-messageBox">' +
       '<div class="message" id="my-message"> ' +
-      message +
+      message.body +
       " </div>" +
       '<div class="separator"></div>' +
       "</div>";
     document.getElementById("message-field").innerHTML += html;
+    message = JSON.stringify(message);
+    ws.send(message);
     document.getElementById("typing-box").value = "";
-  };
+  }
 </script>
