@@ -5,10 +5,12 @@ const WebSocket = require('ws');
 wss.on('connection', function (ws) {
   console.log('A client has connected.');
   ws.on('message', function (message) {
-    console.log('received: %s', message)
-    if (message === 'exit') {
+    message = JSON.parse(message);
+    console.log('received: %s from: %s', message.body, message.name)
+    if (message.body === 'EXIT') {
       ws.close();
     } else {
+      message = JSON.stringify(message)
       wss.clients.forEach(function each(client){
         if(client != ws && client.readyState == WebSocket.OPEN){
           client.send(message);
@@ -18,7 +20,7 @@ wss.on('connection', function (ws) {
   });
 
   ws.on('close', function () {
-    console.log('closed');
+    console.log('A client has closed');
   });
 
   setInterval( () => {
